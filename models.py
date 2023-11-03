@@ -71,35 +71,27 @@ class Job(BaseModel):
     id: str
     name: str
     admin: str
-    status: bool
+    status: bool = False
     schedule: str
     selectedverb: Optional[str] = None
     url: Optional[str] = None
-    headers: Optional[List[HeaderItems]]
+    headers: Optional[List[HeaderItems]] = []
     body: Optional[str] = None
     extra: Optional[dict[str, str]]
 
     @classmethod
     def from_db_row(cls, row):
         # Convert the 'headers' column from a string to a list of dictionaries
+        data = dict(row)
         if row['headers']:
             headers = json.loads(row['headers'])
-            headers = [HeaderItems(**header) for header in headers]
+            data['headers'] = [HeaderItems(**header) for header in headers]
         else:
-            headers = []
+            data['headers'] = []
 
-        return cls(
-            id=row['id'],
-            name=row['name'],
-            admin=row['admin'],
-            status=row['status'],
-            schedule=row['schedule'],
-            selectedverb=row['selectedverb'],
-            url=row['url'],
-            headers=headers,
-            body=row['body'],
-            extra=row['extra']
-        )
+        data["status"] = False #todo
+
+        return cls(**data)
 
 
 class JobFilters(FilterModel):
